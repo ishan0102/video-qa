@@ -2,16 +2,21 @@ from typing import Dict
 
 import sieve
 
+from gpt import ask_gpt_4
+
 
 @sieve.function(
     name="sort-captions",
     iterator_input=True,
     persist_output=True,
 )
-def sort_captions(captions: Dict) -> str:
+def sort_captions(captions: Dict) -> Dict:
     sorted_captions = sorted(captions, key=lambda x: x["frame_number"])
     for caption in sorted_captions:
-        yield caption["caption"]
+        yield {
+            "caption": caption["caption"],
+            "frame_number": caption["frame_number"],
+        }
 
 
 @sieve.function(
@@ -27,16 +32,19 @@ def concatenate_features(sorted_captions, sort_outputs) -> Dict:
 
 
 @sieve.workflow(name="video_qa")
-def video_qa(video: sieve.Video, question: str) -> Dict:
+def video_qa(video: sieve.Video, question: str) -> str:
     images = sieve.reference("ishan0102-utexas-edu/video-splitter-with-metadata")(video, question)
 
     # Image captioning
-    captions = sieve.reference("ishan0102-utexas-edu/image-captioner")(images)
+    captions = sieve.reference("ishan0102-utexas-edu/vit-gpt2")(images)
     sorted_captions = sort_captions(captions)
 
     # YOLO/SORT
     yolo_outputs = sieve.reference("ishan0102-utexas-edu/yolo")(images)
     sort_outputs = sieve.reference("ishan0102-utexas-edu/sort")(yolo_outputs)
 
+    # Call GPT-4
     concatenated_features = concatenate_features(sorted_captions, sort_outputs)
-    return concatenated_features
+    gpt_output = ask_gpt_4(concatenated_features, question)
+
+    return gpt_output
