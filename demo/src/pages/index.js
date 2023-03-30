@@ -36,6 +36,7 @@ const Home = () => {
 
     setJobId(response.data.id);
     checkJobStatus(response.data.id);
+    setPollcount(0);
   };
 
   const checkJobStatus = async (jobId) => {
