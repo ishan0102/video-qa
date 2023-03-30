@@ -28,19 +28,18 @@ def caption_and_combine(answers) -> sieve.Video:
         # Add caption with textwrap
         font = cv2.FONT_HERSHEY_SIMPLEX
         wrapped_text = textwrap.wrap(caption, width=30)
-        x, y = 10, 40
-        font_size = 3
-        font_thickness = 3
+        font_size = 2
+        font_thickness = 2
 
         for i, line in enumerate(wrapped_text):
             textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
 
             gap = textsize[1] + 10
 
-            y = int((img.shape[0] + textsize[1]) / 2) + i * gap
+            y = int((img.shape[0] + textsize[1]) / 2) + i * gap + 40
             x = int((img.shape[1] - textsize[0]) / 2)
 
-            cv2.putText(img, line, (x, y), font, font_size, (255, 255, 0), font_thickness, lineType=cv2.LINE_AA)
+            cv2.putText(img, line, (x, y), font, font_size, (255, 255, 255), font_thickness, lineType=cv2.LINE_AA)
 
         # Convert the color format from BGR to RGB
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
