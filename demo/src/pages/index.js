@@ -39,23 +39,24 @@ const Home = () => {
 
   const checkJobStatus = async (jobId) => {
     const intervalId = setInterval(async () => {
-      const result = await fetch(`https://mango.sievedata.com/v1/jobs/${jobId}`, {
-        headers: {
-          'X-API-Key': 'redacted',
-        },
-        mode: 'no-cors',
-      });
+      const response = await axios.get(
+        `https://mango.sievedata.com/v1/jobs/${jobId}`,
+        {
+          headers: {
+            'X-API-Key': 'redacted',
+          },
+        }
+      );
 
-      const data = await result.json();
-      if (data.status === 'finished') {
+      if (response.data.status === 'finished') {
         clearInterval(intervalId);
         setProcessing(false);
-        const parsedData = JSON.parse(data.data[0].replace(/['"]+/g, '')); // Parse the JSON string into an object
+        const parsedData = JSON.parse(response.data.data[0]);
         console.log(parsedData);
-        setVideoUrl(parsedData.video[0].url);
-        console.log(parsedData.video[0].url);
-        setAnswer(parsedData.gpt_output[0].answer);
-        console.log(parsedData.gpt_output[0].answer);
+        setVideoUrl(parsedData.video);
+        setAnswer(parsedData.gpt_output);
+      } else {
+        console.log('Job is still processing...');
       }
     }, 2000); // Poll every 2 seconds
   };

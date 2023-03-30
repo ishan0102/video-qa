@@ -53,10 +53,19 @@ def display_frames(images: sieve.Image, gpt_output: Dict) -> Tuple[sieve.Image, 
     persist_output=True,
 )
 def combine_outputs(video: sieve.Video, gpt_output: Dict) -> Dict:
-    return {
-        "video": [v for v in video],
-        "gpt_output": [g for g in gpt_output],
+    import json
+
+    videos = [v for v in video]
+    gpt_output = [g for g in gpt_output]
+
+    print(videos[0])
+    print(gpt_output[0])
+
+    output = {
+        "video": videos[0].url,
+        "gpt_output": gpt_output[0]["answer"],
     }
+    return json.dumps(output)
 
 
 @sieve.workflow(name="video_qa")
