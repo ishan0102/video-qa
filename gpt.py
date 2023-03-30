@@ -31,7 +31,7 @@ def ask_gpt_4(features: Dict, question: str) -> Dict:
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a video analysis agent. I will give you captions for each frame. You must use this data to answer a question about the video and you must cite ALL of your sources."},
-            {"role": "user", "content": "You must return your responses in JSON format. In your response, return an object that says `answer` and has a string that answers the question. Also have a `sources` field that is a list of objects that have a `type` field that is `caption` and a `frame_number` field that is the frame number of the source. Cite all of your sources!"},
+            {"role": "user", "content": "You must return your responses in JSON format. In your response, return an object that says `answer` and has a string that answers the question. Also have a `sources` field that is a list of objects that have a `caption` field that is the caption and a `frame_number` field that is the frame number of the source. Cite all of your sources!"},
             {"role": "user", "content": f"Here is the data: {features}. Use the most commonly occurring keywords to inform your answer to the following question. {question}"},
         ],
     )

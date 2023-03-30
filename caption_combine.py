@@ -2,7 +2,7 @@ import sieve
 
 
 @sieve.function(
-    name="video-captioner-combiner",
+    name="image-captioner-combiner",
     gpu=False,
     python_packages=[
         "moviepy==1.0.3",
@@ -13,49 +13,44 @@ import sieve
     iterator_input=True,
     persist_output=True,
 )
-def caption_and_combine(videos, prompt_pairs) -> sieve.Video:
+def caption_and_combine(answers) -> sieve.Video:
     from moviepy.editor import ImageClip, concatenate_videoclips
     import cv2
     import textwrap
     import uuid
 
-    # Sort videos by global ID
-    videos = sorted(videos, key=lambda video: video.video_number)
-
     # Add captions
     images = []
-    for v, prompt in zip(videos, prompt_pairs):
-        print("Creating video with caption: ", prompt[0])
-        cap = cv2.VideoCapture(v.path)
-        while cap.isOpened():
-            # Capture frames in the video
-            ret, frame = cap.read()
-            if not ret:
-                break
+    for img, caption in answers:
+        print("Creating video with caption: ", caption)
+        img = img.array
 
-            # Add caption with textwrap
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            wrapped_text = textwrap.wrap(prompt[0], width=30)
-            x, y = 10, 40
-            font_size = 1
-            font_thickness = 2
+        # Add caption with textwrap
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        wrapped_text = textwrap.wrap(caption, width=30)
+        x, y = 10, 40
+        font_size = 1.25
+        font_thickness = 2
 
-            for i, line in enumerate(wrapped_text):
-                textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
+        for i, line in enumerate(wrapped_text):
+            textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
 
-                gap = textsize[1] + 10
+            gap = textsize[1] + 10
 
-                y = int((frame.shape[0] + textsize[1]) / 2) + i * gap
-                x = int((frame.shape[1] - textsize[0]) / 2)
+            y = int((img.shape[0] + textsize[1]) / 2) + i * gap
+            x = int((img.shape[1] - textsize[0]) / 2)
 
-                cv2.putText(frame, line, (x, y), font, font_size, (255, 255, 0), font_thickness, lineType=cv2.LINE_AA)
+            cv2.putText(img, line, (x, y), font, font_size, (255, 255, 0), font_thickness, lineType=cv2.LINE_AA)
+
+            # Convert the color format from BGR to RGB
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             # Add the frame to the list of images
-            images.append(frame)
+            images.append(img_rgb)
 
     # Combine the images into a video
     print("Combining all frames into video...")
-    clips = [ImageClip(m).set_duration(0.25) for m in images]
+    clips = [ImageClip(m).set_duration(1) for m in images]
     video = concatenate_videoclips(clips)
     video_path = f"{uuid.uuid4()}.mp4"
     video.write_videofile(video_path, fps=30)
