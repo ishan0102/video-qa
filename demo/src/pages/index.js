@@ -9,6 +9,7 @@ const Home = () => {
   const [jobId, setJobId] = useState('');
   const [processing, setProcessing] = useState(false);
   const [answer, setAnswer] = useState('');
+  const [pollcount, setPollcount] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,8 +58,9 @@ const Home = () => {
         setAnswer(parsedData.gpt_output);
       } else {
         console.log('Job is still processing...');
+        setPollcount((prevCount) => prevCount + 1);
       }
-    }, 2000); // Poll every 2 seconds
+    }, 1000); // Poll every 1 seconds
   };
 
   return (
@@ -102,7 +104,7 @@ const Home = () => {
           )}
           {processing && (
             <div className="text-center">
-              <p className="mt-4 text-xl text-indigo-600 font-bold">Processing...</p>
+              <p className="mt-4 text-xl text-indigo-600 font-bold">Processing... ({pollcount}s)</p>
             </div>
           )}
         </div>
