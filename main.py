@@ -10,7 +10,6 @@ from caption_combine import caption_and_combine
 @sieve.function(
     name="sort-captions",
     iterator_input=True,
-    persist_output=True,
 )
 def sort_captions(captions: Dict) -> Dict:
     sorted_captions = sorted(captions, key=lambda x: x["frame_number"])
@@ -48,8 +47,20 @@ def display_frames(images: sieve.Image, gpt_output: Dict) -> Tuple[sieve.Image, 
                 yield (image, source["caption"])
 
 
+@sieve.function(
+    name="combine-outputs",
+    iterator_input=True,
+    persist_output=True,
+)
+def combine_outputs(video: sieve.Video, gpt_output: Dict) -> Dict:
+    return {
+        "video": [v for v in video],
+        "gpt_output": [g for g in gpt_output],
+    }
+
+
 @sieve.workflow(name="video_qa")
-def video_qa(video: sieve.Video, question: str) -> str:
+def video_qa(video: sieve.Video, question: str) -> Dict:
     images = sieve.reference("ishan0102-utexas-edu/video-splitter-with-fps")(video, question)
 
     # Image captioning
@@ -68,4 +79,5 @@ def video_qa(video: sieve.Video, question: str) -> str:
     gpt_output = ask_gpt_4(concatenated_features, question)
     answers = display_frames(images, gpt_output)
     output_video = caption_and_combine(answers)
-    return output_video
+    final_output = combine_outputs(output_video, gpt_output)
+    return final_output

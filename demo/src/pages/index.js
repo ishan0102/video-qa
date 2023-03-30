@@ -7,8 +7,8 @@ const Home = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [question, setQuestion] = useState('');
   const [jobId, setJobId] = useState('');
-  const [videoResult, setVideoResult] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [answer, setAnswer] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +49,14 @@ const Home = () => {
       if (data.status === 'finished') {
         clearInterval(intervalId);
         setProcessing(false);
-        setVideoUrl(data.data[0].url);
+        const parsedData = JSON.parse(data.data[0].replace(/['"]+/g, '')); // Parse the JSON string into an object
+        setVideoUrl(parsedData.video[0].url);
+        setAnswer(parsedData.gpt_output[0].answer);
+
+        const dataObj = JSON.parse(data);
+
+        const videoURL = dataObj.data[0].video[0].url;
+        const answer = dataObj.data[0].gpt_output[0].answer;
       }
     }, 2000); // Poll every 2 seconds
   };
@@ -57,6 +64,9 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-indigo-500 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-6">Video QA</h1>
+        </div>
         <div className="p-8 bg-white rounded-xl shadow-md">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center">
@@ -90,12 +100,6 @@ const Home = () => {
               <p className="mt-4 text-xl">Job ID: {jobId}</p>
             </div>
           )}
-          {videoResult && (
-            <div className="text-center">
-              <p className="mt-4 text-xl">Video result:</p>
-              <video src={videoResult} controls className="mt-4 w-full" />
-            </div>
-          )}
           {processing && (
             <div className="text-center">
               <p className="mt-4 text-xl text-indigo-600 font-bold">Processing...</p>
@@ -111,6 +115,13 @@ const Home = () => {
               controls
               className="w-full max-w-lg rounded-md shadow-lg"
             ></video>
+          </div>
+        )}
+
+        {answer && (
+          <div className="mt-8 p-8 bg-white rounded-xl shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Answer:</h2>
+            <p className="text-xl">{answer}</p>
           </div>
         )}
       </div>
