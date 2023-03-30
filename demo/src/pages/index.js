@@ -43,6 +43,7 @@ const Home = () => {
         headers: {
           'X-API-Key': 'redacted',
         },
+        mode: 'no-cors',
       });
 
       const data = await result.json();
@@ -50,13 +51,11 @@ const Home = () => {
         clearInterval(intervalId);
         setProcessing(false);
         const parsedData = JSON.parse(data.data[0].replace(/['"]+/g, '')); // Parse the JSON string into an object
+        console.log(parsedData);
         setVideoUrl(parsedData.video[0].url);
+        console.log(parsedData.video[0].url);
         setAnswer(parsedData.gpt_output[0].answer);
-
-        const dataObj = JSON.parse(data);
-
-        const videoURL = dataObj.data[0].video[0].url;
-        const answer = dataObj.data[0].gpt_output[0].answer;
+        console.log(parsedData.gpt_output[0].answer);
       }
     }, 2000); // Poll every 2 seconds
   };
