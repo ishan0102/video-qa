@@ -13,6 +13,7 @@ import sieve
     iterator_input=True,
 )
 def ask_gpt_4(features: Dict, question: str) -> Dict:
+    import json
     import os
 
     import openai
@@ -29,11 +30,18 @@ def ask_gpt_4(features: Dict, question: str) -> Dict:
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a video analysis agent. I will give you pieces of data such as captions for frames and objects tracked across frames. You must use this data to answer a question about the video."},
-            {"role": "user", "content": f"Here is the data: {features}. {question}"},
+            {"role": "system", "content": "You are a video analysis agent. I will give you pieces of data such as captions for frames and objects tracked across frames. You must use this data to answer a question about the video and you must cite ALL of your sources."},
+            {"role": "user", "content": "You must return your responses in JSON format. In your response, return an object that says `answer` and has a string that answers the question. Also have a `sources` field that is a list of objects that have a `type` field that is either `caption` or `sort` and a `frame_number` field that is the frame number of the source. Cite all of your sources!"},
+            {"role": "user", "content": f"Here is the data: {features}. Use the most commonly occurring keywords to inform your answer to the following question. {question}"},
         ],
     )
 
     print(response)
-    return response.choices[0].message.content
-        
+    try:
+        print(response.choices[0].message.content)
+        answer = json.loads(response.choices[0].message.content)
+        print(f"The answer is: {answer['answer']}")
+    except json.JSONDecodeError:
+        answer = {"answer": "I don't know", "sources": []}
+
+    return answer
