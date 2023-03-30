@@ -29,8 +29,8 @@ def caption_and_combine(answers) -> sieve.Video:
         font = cv2.FONT_HERSHEY_SIMPLEX
         wrapped_text = textwrap.wrap(caption, width=30)
         x, y = 10, 40
-        font_size = 1.25
-        font_thickness = 2
+        font_size = 3
+        font_thickness = 3
 
         for i, line in enumerate(wrapped_text):
             textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
@@ -42,11 +42,11 @@ def caption_and_combine(answers) -> sieve.Video:
 
             cv2.putText(img, line, (x, y), font, font_size, (255, 255, 0), font_thickness, lineType=cv2.LINE_AA)
 
-            # Convert the color format from BGR to RGB
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # Convert the color format from BGR to RGB
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-            # Add the frame to the list of images
-            images.append(img_rgb)
+        # Add the frame to the list of images
+        images.append(img_rgb)
 
     # Combine the images into a video
     print("Combining all frames into video...")
