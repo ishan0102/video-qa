@@ -24,10 +24,11 @@ def sort_captions(captions: Dict) -> Dict:
     iterator_input=True,
     persist_output=True,
 )
-def concatenate_features(sorted_captions, sort_outputs) -> Dict:
+def concatenate_features(sorted_captions, sort_outputs, blip2_outputs) -> Dict:
     return {
         "captions": [c for c in sorted_captions],
         "sort_outputs": [o for o in sort_outputs],
+        "blip2_outputs": [o for o in blip2_outputs],
     }
 
 
@@ -43,8 +44,11 @@ def video_qa(video: sieve.Video, question: str) -> str:
     yolo_outputs = sieve.reference("ishan0102-utexas-edu/yolo")(images)
     sort_outputs = sieve.reference("ishan0102-utexas-edu/sort")(yolo_outputs)
 
+    # Blip2
+    # blip2_outputs = sieve.reference("ishan0102-utexas-edu/blip2")(images)
+
     # Call GPT-4
-    concatenated_features = concatenate_features(sorted_captions, sort_outputs)
+    concatenated_features = concatenate_features(sorted_captions, sort_outputs, blip2_outputs)
     gpt_output = ask_gpt_4(concatenated_features, question)
 
     return gpt_output
