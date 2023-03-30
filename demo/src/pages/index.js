@@ -34,10 +34,7 @@ const Home = () => {
     );
 
     setJobId(response.data.id);
-
-    const job_response = await fetch(url, options);
-    const json = await job_response.json();
-    checkJobStatus(json.id);
+    checkJobStatus(response.data.id);
   };
 
   const checkJobStatus = async (jobId) => {
@@ -59,48 +56,61 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-indigo-500 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-md">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="text-center">
-            <h2 className="text-2xl font-extrabold text-gray-900">Submit a video and question</h2>
-          </div>
-          <input
-            type="text"
-            placeholder="Video URL"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <input
-            type="text"
-            placeholder="Question"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
-        {jobId && (
-          <div className="text-center">
-            <p className="mt-4 text-xl">Job ID: {jobId}</p>
-          </div>
-        )}
-        {videoResult && (
-          <div className="text-center">
-            <p className="mt-4 text-xl">Video result:</p>
-            <video src={videoResult} controls className="mt-4 w-full" />
-          </div>
-        )}
-        {processing && (
-          <div className="mt-4 text-indigo-600 font-bold">
-            Processing, please wait...
+      <div className="max-w-md w-full space-y-8">
+        <div className="p-8 bg-white rounded-xl shadow-md">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-extrabold text-gray-900">Submit a video and question</h2>
+            </div>
+            <input
+              type="text"
+              placeholder="Video URL"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <input
+              type="text"
+              placeholder="Question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+          {jobId && (
+            <div className="text-center">
+              <p className="mt-4 text-xl">Job ID: {jobId}</p>
+            </div>
+          )}
+          {videoResult && (
+            <div className="text-center">
+              <p className="mt-4 text-xl">Video result:</p>
+              <video src={videoResult} controls className="mt-4 w-full" />
+            </div>
+          )}
+          {processing && (
+            <div className="text-center">
+              <p className="mt-4 text-xl text-indigo-600 font-bold">Processing...</p>
+            </div>
+          )}
+        </div>
+
+        {videoUrl && (
+          <div className="mt-8 p-8 bg-white rounded-xl shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Video:</h2>
+            <video
+              src={videoUrl}
+              controls
+              className="w-full max-w-lg rounded-md shadow-lg"
+            ></video>
           </div>
         )}
       </div>
