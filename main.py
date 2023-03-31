@@ -2,9 +2,9 @@ from typing import Dict, Tuple
 
 import sieve
 
-from gpt import ask_gpt_4
-
 from caption_combine import caption_and_combine
+from embeddings import PineconeUploadImages, PineconeQueryText
+from gpt import ask_gpt_4
 
 
 @sieve.function(
@@ -40,10 +40,12 @@ def display_frames(images: sieve.Image, gpt_output: Dict) -> Tuple[sieve.Image, 
     images = [i for i in images]
     gpt_output = [g for g in gpt_output]
     print(f"GPT Output: {gpt_output}")
+    found_captions = []
     for source in gpt_output[0]["sources"]:
         for image in images:
-            if image.frame_number == source["frame_number"]:
+            if image.frame_number == source["frame_number"] and source["caption"] not in found_captions:
                 print(f"Displaying frame {image.frame_number} and caption {source['caption']}")
+                found_captions.append(source["caption"])
                 yield (image, source["caption"])
 
 
@@ -69,11 +71,15 @@ def combine_outputs(video: sieve.Video, gpt_output: Dict) -> Dict:
 
 
 @sieve.workflow(name="video_qa")
-def video_qa(video: sieve.Video, question: str) -> Dict:
+def video_qa(video: sieve.Video, question: str, namespace: str) -> Dict:
     images = sieve.reference("ishan0102-utexas-edu/video-splitter-with-fps")(video, question)
 
+    # Retain relevant frames based on CLIP embeddings
+    namespace_context = PineconeUploadImages()(images, namespace)
+    relevant_images = PineconeQueryText()(images, question, namespace_context)
+
     # Image captioning
-    captions = sieve.reference("ishan0102-utexas-edu/vit-gpt2")(images)
+    captions = sieve.reference("ishan0102-utexas-edu/vit-gpt2")(relevant_images)
     sorted_captions = sort_captions(captions)
 
     # YOLO/SORT

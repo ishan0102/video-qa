@@ -14,10 +14,11 @@ import sieve
     persist_output=True,
 )
 def caption_and_combine(answers) -> sieve.Video:
-    from moviepy.editor import ImageClip, concatenate_videoclips
-    import cv2
     import textwrap
     import uuid
+
+    import cv2
+    from moviepy.editor import ImageClip, concatenate_videoclips
 
     # Add captions
     images = []

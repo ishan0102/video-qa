@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 const API_KEY = 'redacted';
@@ -24,6 +25,7 @@ const Home = () => {
             url: videoUrl,
           },
           question,
+          namespace: uuidv4(),
         },
       },
       {
